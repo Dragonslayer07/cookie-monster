@@ -9,3 +9,77 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model User {
+  id             Int      @id @default(autoincrement())
+  username       String   @unique
+  email          String   @unique
+  password       String
+  profilePicture String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  gems           Gem[]
+  votes          Vote[]
+}
+
+model Gem {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String
+  type        GemType
+  latitude    Float
+  longitude   Float
+  authorId    Int
+  author      User     @relation(fields: [authorId], references: [id])
+  media       Media[]
+  votes       Vote[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  City        City?    @relation(fields: [cityCode], references: [code])
+  cityCode    String
+}
+
+model Media {
+  id    Int       @id @default(autoincrement())
+  uri   String
+  type  MediaType
+  gemId Int
+  gem   Gem       @relation(fields: [gemId], references: [id])
+}
+
+model Vote {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  gemId     Int
+  type      VoteType
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id])
+  gem       Gem      @relation(fields: [gemId], references: [id])
+}
+
+model City {
+  id        Int    @id @default(autoincrement())
+  name      String
+  code      String @unique
+  latitude  Float
+  longitude Float
+  gems      Gem[]
+}
+
+enum VoteType {
+  UPVOTE
+  DOWNVOTE
+}
+
+enum GemType {
+  ART
+  ARCHITECTURE
+  FOOD
+  NATURE
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+}
