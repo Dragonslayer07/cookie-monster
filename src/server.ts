@@ -1,13 +1,36 @@
 import express, { Request, Response } from 'express';
 import { GemType, Media, MediaType, PrismaClient, VoteType } from '@prisma/client';
+import os from 'os';
+import HealthcheckController from "./api/HealthcheckController";
+
 
 const prisma = new PrismaClient();
 const app = express();
 app.use(express.json());
 
-app.listen(3000, () =>
-    console.log('Server running on http://localhost:3000')
-);
+// Function to get the local IP address
+function getLocalIPAddress() {
+    const interfaces = os.networkInterfaces();
+    for (const name of Object.keys(interfaces)) {
+        for (const net of interfaces[name]!) {
+            if (net.family === 'IPv4' && !net.internal) {
+                return net.address;
+            }
+        }
+    }
+    return '127.0.0.1';
+}
+
+// Start the server and log the local IP address
+const port = 3000;
+const localIP = getLocalIPAddress();
+
+app.listen(port, '0.0.0.0', () => {
+    console.log(`Server running on http://0.0.0.0:${port}`);
+    console.log(`Local IP address: http://${localIP}:${port}`);
+});
+
+app.use('/', HealthcheckController);
 
 // TypeScript interfaces
 interface MediaInput {
