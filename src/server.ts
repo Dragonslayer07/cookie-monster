@@ -174,7 +174,7 @@ app.get('/cities/:cityCode/gems', async (req: Request, res: Response) => {
 
         return res.json({ gems: result });
     }
-    const { sort_by } = req.query;
+    const { top } = req.query;
 
     const city = await prisma.city.findUnique({
         where: { code: cityCode },
@@ -187,7 +187,7 @@ app.get('/cities/:cityCode/gems', async (req: Request, res: Response) => {
 
     let gems = city.gems;
 
-    if (sort_by === 'RATINGS') {
+    if (top) {
         gems = gems.sort((a, b) => {
             const aUpvotes = a.votes.filter(vote => vote.type === VoteType.UPVOTE).length;
             const bUpvotes = b.votes.filter(vote => vote.type === VoteType.UPVOTE).length;
